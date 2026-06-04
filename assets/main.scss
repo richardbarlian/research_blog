@@ -16,6 +16,10 @@
   }
 }
 
+.post-list {
+  margin-top: 2rem;
+}
+
 .post-excerpt {
   color: #555;
   font-size: 0.95rem;
@@ -94,7 +98,8 @@
 }
 
 .tag-filter {
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
+  margin-top: -1.5rem;
 }
 
 .tag-btn {

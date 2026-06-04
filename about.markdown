@@ -5,7 +5,7 @@ permalink: /about/
 ---
 
 <div style="display: flex; align-items: flex-start; gap: 2rem; margin-bottom: 1rem;">
-  <img src="/assets/me.jpeg" alt="Richard Barlian" style="width: 300px;  object-fit: cover; flex-shrink: 0;">
+  <img src="{{ '/assets/me.jpeg' | relative_url }}" alt="Richard Barlian" style="width: 300px;  object-fit: cover; flex-shrink: 0;">
   <div style="flex: 1;">
     <p>Ralph Waldo Emerson once wrote "Trust thyself: every heart vibrates to that iron string".</p>
     <p>I don't fully trust myself in implementing these architectures correctly -- I've had my fair share of patching sketchy code with sketchier fixes, slapping on a tighter gradient clip and praying training magically goes smooth.</p>
@@ -39,5 +39,5 @@ permalink: /about/
       </a>
     </li>
   </ul>
-  <img src="/assets/me2.jpg" alt="Richard Barlian" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-left: auto; margin-top: -1rem;">
+  <img src="{{ '/assets/me.jpeg' | relative_url }}" alt="Richard Barlian" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; flex-shrink: 0; margin-left: auto; margin-top: -1rem;">
 </div>

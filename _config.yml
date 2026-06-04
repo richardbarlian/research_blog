@@ -21,7 +21,7 @@
 title: Me and Deep Learning
 email: richard.barlian@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Richard Henry Barlian's AI blog. Join me as I explore unusual deep learning architectures and training methods (even if means questionable coding).
+  Richard Henry Barlian's AI blog. Join me as I explore unusual deep learning architectures and training methods.
 baseurl: "/research_blog"
 url: "https://richardbarlian.github.io"
 github_username: richardbarlian

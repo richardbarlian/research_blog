@@ -11,8 +11,8 @@ excerpt: "I built a hybrid GARCH-LSTM for volatility forecasting, then tried to 
 
 In quantitative finance, many hail neural networks as a mystical system that, given enough training, can predict anything.
 Although neural networks are impressive, they are often opaque and confidently wrong.
-It’s easy to train an LSTM or even a Transformer on price data and claim 95% accuracy.
-However, it’s harder to answer the question: is the model gathering signal, or is it memorizing noise?
+It's easy to train an LSTM or even a Transformer on price data and claim 95% accuracy.
+However, it's harder to answer the question: is the model gathering signal, or is it memorizing noise?
 
 I recently built a volatility forecasting system that made me confront this question head-on.
 The results might change how you think about using Artificial Intelligence in financial modelling.
@@ -23,7 +23,7 @@ Traditional finance has long used GARCH models, statistical workhorses that capt
 Modern AI has LSTMs, excellent at learning temporal dependencies but often lacking statistical rigor and prone to overfitting past data.
 
 <figure style="text-align:center">
-  <img src="/assets/AAPL_GARCH.webp" width="700">
+  <img src="{{ '/assets/AAPL_GARCH.webp' | relative_url }}" width="700">
   <figcaption>GARCH fitted on daily AAPL returns</figcaption>
 </figure>
 
@@ -43,7 +43,7 @@ The validation was however the most insightful part of this project.
 After training models on 30 years of data across 8 stocks, I faced the critical question: are these models actually predictive, or could they perform just as well on random data?
 I implemented ideas from _Evidence-Based Technical Analysis_ by David Aronson, notably for testing if the model generalized to out-of-sample volatility predictions.
 
-Namely, I used Aronson’s Monte Carlo Permutation Test. This statistical method creates synthetic datasets by:
+Namely, I used Aronson's Monte Carlo Permutation Test. This statistical method creates synthetic datasets by:
 
 1. **Permuting returns** (destroying temporal structure but preserving distribution)
 2. **Generating Brownian motion** (complete randomness with similar statistics)
@@ -61,7 +61,7 @@ The code generates two types of synthetic data:
   - No relationship to actual market behavior whatsoever.
 
 <figure style="text-align:center">
-  <img src="/assets/brownian_motion.webp" width="700">
+  <img src="{{ '/assets/brownian_motion.webp' | relative_url }}" width="700">
   <figcaption>Source: https://quantgirluk.github.io/Understanding-Quantitative-Finance/brownian_motion.html</figcaption>
 </figure>
 
@@ -92,11 +92,11 @@ This p-value was calculated after I tested with AAPL stock. In 100 attempts with
 
 **p-value = 1.0000**
 
-I obtained this value after testing with TSLA stock. The model performed just as well on random data as it did on real TSLA data. Hence, it’s probably not learning any real patterns specific to TSLA.
+I obtained this value after testing with TSLA stock. The model performed just as well on random data as it did on real TSLA data. Hence, it's probably not learning any real patterns specific to TSLA.
 
 ## Why Your Metrics Might Be Lying to You
 
-The uncomfortable truth in quantitative finance in particular is that good performance metrics alone don’t prove your model actually works.
+The uncomfortable truth in quantitative finance in particular is that good performance metrics alone don't prove your model actually works.
 
 Without proper statistical testing:
 
@@ -106,42 +106,42 @@ With Monte Carlo Permutation Testing:
 
 - You can confidently state that the model achieves MAE = 0.001155, and statistical testing confirms this performance is genuine ($p < 0.0001$), not just random luck.
 
-The reason we need this rigorous testing is that financial data naturally contains patterns that can fool naive models. Even a simple model can appear successful because it’s accidentally capturing:
+The reason we need this rigorous testing is that financial data naturally contains patterns that can fool naive models. Even a simple model can appear successful because it's accidentally capturing:
 
-- **Autocorrelation:** Where today’s returns influence tomorrow’s.
+- **Autocorrelation:** Where today's returns influence tomorrow's.
 - **Volatility clustering:** The tendency for big moves to cluster together.
 - **Mean reversion:** Prices eventually returning to their historical averages.
 
-These aren’t sophisticated patterns your model learned: they’re basic statistical properties of markets that even random models can stumble upon even though they are not statistically proven to always occur.
+These aren't sophisticated patterns your model learned: they're basic statistical properties of markets that even random models can stumble upon even though they are not statistically proven to always occur.
 
 ## What the Data Revealed
 
 After running the test script:
 
-- 6 out of 8 stocks showed statistically significant predictive power: but two didn’t.
-- The volatility of TSLA and BA proved to be too hard to model, most likely due to the stock prices being largely determined due to news rather than past patterns. I’ve attached the rolling window p-value and MAE for both AAPL (which the LSTM generalized to well), as well as the TSLA (which gave poor results).
+- 6 out of 8 stocks showed statistically significant predictive power: but two didn't.
+- The volatility of TSLA and BA proved to be too hard to model, most likely due to the stock prices being largely determined due to news rather than past patterns. I've attached the rolling window p-value and MAE for both AAPL (which the LSTM generalized to well), as well as the TSLA (which gave poor results).
 
 <figure style="text-align:center">
-  <img src="/assets/AAPL_pvals.webp" width="700">
+  <img src="{{ '/assets/AAPL_pvals.webp' | relative_url }}" width="700">
   <figcaption>P-value and MAE for AAPL</figcaption>
 </figure>
 
 <figure style="text-align:center">
-  <img src="/assets/TSLA_pvals.webp" width="700">
+  <img src="{{ '/assets/TSLA_pvals.webp' | relative_url }}" width="700">
   <figcaption>P-value and MAE for TSLA</figcaption>
 </figure>
 
 ## The Feature Importance Surprise
 
 <figure style="text-align:center">
-  <img src="/assets/feature_importance.webp" width="700">
+  <img src="{{ '/assets/feature_importance.webp' | relative_url }}" width="700">
   <figcaption>Feature Importance</figcaption>
 </figure>
 
 When I tested which features mattered most by shuffling them, the results were mostly consistent across stocks:
 
 - The GARCH predictions (the traditional finance component) proved to be the second most important feature in almost every stock.
-- This wasn’t just AI outperforming traditional methods; it was AI learning to leverage traditional methods.
+- This wasn't just AI outperforming traditional methods; it was AI learning to leverage traditional methods.
 - I also saw that some features were redundant, which I am planning to remove in future training.
 
 ## Stress Testing Reality
@@ -150,7 +150,7 @@ Financial models need to work when markets break from normal patterns.
 The stress tests using heavy-tailed t-distributions revealed how the models would perform during extreme volatility.
 
 <figure style="text-align:center">
-  <img src="/assets/fat_tail.webp" width="700">
+  <img src="{{ '/assets/fat_tail.webp' | relative_url }}" width="700">
   <figcaption>Source: https://www.geeksforgeeks.org/engineering-mathematics/students-t-distribution-in-statistics/</figcaption>
 </figure>
 
@@ -177,7 +177,7 @@ Epoch 116 | Train: -0.5335 | Test: -0.6070 (20)
 Early stopping at epoch 116
 ```
 
-The best models weren’t the ones that trained the longest, but the ones that stopped at the right moment, typically around 100–120 epochs.
+The best models weren't the ones that trained the longest, but the ones that stopped at the right moment, typically around 100–120 epochs.
 
 ```python
 model = ProbLSTM(
@@ -196,10 +196,10 @@ Through extensive testing, these values gave the best results (for final MAE in 
 
 This project taught me several crucial lessons:
 
-1. **Statistical rigor isn’t optional:** Without proper testing, you’re just using wishful thinking with fancy algorithms.
+1. **Statistical rigor isn't optional:** Without proper testing, you're just using wishful thinking with fancy algorithms.
 2. **Hybrid approaches work:** Traditional finance models and AI can complement each other beautifully.
 3. **Not all stocks are predictable:** Some securities like TSLA might be inherently less forecastable.
-4. **Feature engineering matters:** The GARCH component proved critical despite the neural network’s complexity, and to a lesser extent Kurtosis, skew, and Hurst.
+4. **Feature engineering matters:** The GARCH component proved critical despite the neural network's complexity, and to a lesser extent Kurtosis, skew, and Hurst.
 
 ### The Code That Made It Possible
 
@@ -219,10 +219,10 @@ I am looking to:
 - Build ensemble approaches
 - Explore alternative architectures like Transformers or attention heads
 
-However, the foundation is solid. The AI system doesn’t just make predictions, but can statistically defend why those predictions might be meaningful.
+However, the foundation is solid. The AI system doesn't just make predictions, but can statistically defend why those predictions might be meaningful.
 
 ## Conclusion
 
-Building a model for quantitative finance isn’t just an act of prediction but an act of restraint. It is often easy to assume the market is deterministic, when in reality it is stochastic.
+Building a model for quantitative finance isn't just an act of prediction but an act of restraint. It is often easy to assume the market is deterministic, when in reality it is stochastic.
 
-All the code, tests, and results are open-sourced so you can reproduce every step. I’ve uploaded my code for this journey through quantitative finance on GitHub here: [garch-lstm-volatility](https://github.com/richardbarlian/garch-lstm-volatility). Do check it out if you are interested.
+All the code, tests, and results are open-sourced so you can reproduce every step. I've uploaded my code for this journey through quantitative finance on GitHub here: [garch-lstm-volatility](https://github.com/richardbarlian/garch-lstm-volatility). Do check it out if you are interested.

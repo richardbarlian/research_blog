@@ -8,8 +8,8 @@ excerpt: Can an autoencoder learn the hidden structure of markets? I trained one
 ---
 
 <figure style="text-align:center">
-  <img src="/assets/latentspace.webp" width="700">
-  <figcaption>Autoencoder’s 3D Latent Space Over Time</figcaption>
+  <img src="{{ '/assets/latentspace.webp' | relative_url }}" width="700">
+  <figcaption>Autoencoder's 3D Latent Space Over Time</figcaption>
 </figure>
 
 ## Background
@@ -17,11 +17,11 @@ excerpt: Can an autoencoder learn the hidden structure of markets? I trained one
 _Autoencoders_ have been part of neural network research since the late 1980s. In 1986, Rumelhart et al. introduced the idea of the 'bottleneck network' for principal component analysis, which forced the network to learn a compressed, distributed representation of the input data in order to reconstruct it.
 
 <br>
-![Autoencoder Graphical Representation](/assets/AE_image.webp){: width="450" style="display:block; margin:0 auto;"}
+![Autoencoder Graphical Representation]({{ '/assets/AE_image.webp' | relative_url }}){: width="450" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Graphical Representation of the Autoencoder</figcaption><br>
 
-That simple idea laid the groundwork for _Deep Embedded Clustering_ (DEC), a groundbreaking framework for simultaneous feature learning and cluster assignment. DEC had a critical flaw, though: it **discarded the autoencoder’s decoder**. This meant the optimization was driven only by the clustering objective. Given the reconstruction quality was no longer part of the loss function, the clusters could lose any intrinsic meaning in the context of the input data.
+That simple idea laid the groundwork for _Deep Embedded Clustering_ (DEC), a groundbreaking framework for simultaneous feature learning and cluster assignment. DEC had a critical flaw, though: it **discarded the autoencoder's decoder**. This meant the optimization was driven only by the clustering objective. Given the reconstruction quality was no longer part of the loss function, the clusters could lose any intrinsic meaning in the context of the input data.
 
 <br>
 
@@ -71,7 +71,7 @@ $$
 \mathcal{L}_{\text{Recon}} = \frac{1}{ND} \sum_{n=1}^{N} ||\mathbf{x}_n - \hat{\mathbf{x}}_n||_2^2
 $$
 
-Firstly, the recon loss is used to quantify the autoencoder’s error, from the input data to its reconstruction. The recon loss is the standard Mean Squared Error (MSE). Without recon loss, the autoencoder would have no incentive to learn to efficiently compress the cross-sectional returns.
+Firstly, the recon loss is used to quantify the autoencoder's error, from the input data to its reconstruction. The recon loss is the standard Mean Squared Error (MSE). Without recon loss, the autoencoder would have no incentive to learn to efficiently compress the cross-sectional returns.
 
 In Pytorch, the simple MSELoss function can be used
 
@@ -83,7 +83,7 @@ recon_loss = nn.MSELoss(reduction="mean")(recon, x)
 
 To implement clustering in the latent dimensions of this autoencoder, I looked no further than Improved Deep Embedded Clustering. IDEC was proposed to address the representation degradation issue in DEC. By retaining the reconstruction loss from the autoencoder and adding it back to the clustering, the coordinates of the cluster could still retain its meaning, and the learned latent space remains faithful to the original data structure.
 
-I added a clustering loss that encourages the autoencoder’s latent space to form clear, well-separated groups. The model first estimates how strongly each embedded market state belongs to each cluster, then sharpens these estimates to focus on the most confident assignments. By training the model to match these refined assignments, the latent points are pulled toward their main cluster and pushed away from others, producing clean and meaningful clusters.
+I added a clustering loss that encourages the autoencoder's latent space to form clear, well-separated groups. The model first estimates how strongly each embedded market state belongs to each cluster, then sharpens these estimates to focus on the most confident assignments. By training the model to match these refined assignments, the latent points are pulled toward their main cluster and pushed away from others, producing clean and meaningful clusters.
 
 In code:
 
@@ -117,7 +117,7 @@ P = P.detach()
 cluster_loss = nn.KLDivLoss(reduction="batchmean")(torch.log(Q + 1e-10), P)
 ```
 
-![Pairwise Scatter Matrix](/assets/pairwise_scatter.webp){: width="450" style="display:block; margin:0 auto;"}
+![Pairwise Scatter Matrix]({{ '/assets/pairwise_scatter.webp' | relative_url }}){: width="450" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Pairwise scatter matrix for the latent dimension distribution</figcaption><br>
 
@@ -134,7 +134,7 @@ decorr_loss = torch.sum(torch.abs(cov_matrix)) - torch.sum(
 Although clustering encourages similar points to come together in the latent space, it can also cause different latent dimensions to become redundant or collapse into a single direction. By adding a small penalty for highly correlated latent dimensions, I encourage each dimension to carry distinct information. This prevents the latent space from degenerating into an effectively one-dimensional line and preserves a richer, more useful structure for clustering.
 
 <br>
-![Latent Pearson Correlation Heatmap](/assets/corr_heatmap.webp){: width="450" style="display:block; margin:0 auto;"}
+![Latent Pearson Correlation Heatmap]({{ '/assets/corr_heatmap.webp' | relative_url }}){: width="450" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Latent Pearson Correlation Heatmap</figcaption><br>
 
@@ -146,7 +146,7 @@ $$
 \mathcal{L}_{\text{Var}} = \sum_{i=1}^{K} (\operatorname{Var}(\mathbf{z}_i) - 1)^2
 $$
 
-This term penalizes latent dimensions with overly small variance. It was added because after decorrelation, initial runs showed that some factors had near-zero variance, rendering them useless, even if they were uncorrelated. In practice, the term is the MSE between the dimension’s variance to 1.0. This pushes the variance of each latent dimension towards a target of 1.0.
+This term penalizes latent dimensions with overly small variance. It was added because after decorrelation, initial runs showed that some factors had near-zero variance, rendering them useless, even if they were uncorrelated. In practice, the term is the MSE between the dimension's variance to 1.0. This pushes the variance of each latent dimension towards a target of 1.0.
 
 In code:
 
@@ -168,7 +168,7 @@ dead_penalty = torch.sum(torch.relu(0.1 - stds))
 
 I partitioned the dataset into a simple train, val, test split. More specifically, the training set was 2015–01–01 to 2023–12–31, and the data from that date to 2024–06–30 was for validation. The rest of the data was reserved for out-of-sample testing. That being said, using a larger dataset for a longer time frame would most likely lead to better performance, but for this project this dataset provided sufficient temporal coverage.
 
-To prevent data leakage, I normalized each asset’s returns using a rolling z-score computed over the previous 60 days, with the statistics shifted by one timestep to prevent look-ahead bias. For validation and test data, the initial rolling statistics are seeded using the final training window, and all values are clipped to ±10 to control extreme outliers under distribution shift.
+To prevent data leakage, I normalized each asset's returns using a rolling z-score computed over the previous 60 days, with the statistics shifted by one timestep to prevent look-ahead bias. For validation and test data, the initial rolling statistics are seeded using the final training window, and all values are clipped to ±10 to control extreme outliers under distribution shift.
 
 ```python
 self.rolling_means = {}
@@ -192,7 +192,7 @@ self.train_stats = {
 All in all, the autoencoder learnt some meaningful market structure and managed to cluster its latent states, which can be seen from this t-SNE graph. For context, t-SNE is a nonlinear dimensionality-reduction algorithm that projects high-dimensional data into 2D or 3D while preserving local neighborhood structure for visualization.
 
 <br>
-![Latent Space Trajectory Over Time (t-SNE)](/assets/latent_space_traj.png){: width="600" style="display:block; margin:0 auto;"}
+![Latent Space Trajectory Over Time (t-SNE)]({{ '/assets/latent_space_traj.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Latent Space Trajectory Over Time (t-SNE)</figcaption><br>
 
@@ -207,32 +207,33 @@ Although this was not my main objective, I wanted to test my hypothesis that per
 After training, on the test dataset, I fed the returns of SPY (which I purposely left out of the train/val dataset), stacked in the shape of the data input from training.
 
 <br>
-![SPY Anomaly Detection Graph on Test Period](/assets/spy_anomaly1.png){: width="600" style="display:block; margin:0 auto;"}
+
+![SPY Anomaly Detection Graph on Test Period]({{ '/assets/spy_anomaly1.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">SPY Anomaly Detection Graph on Test Period</figcaption><br>
 
-Surprisingly, the autoencoder did have a higher reconstruction loss during periods of erratic market behavior. Notably, in April 2025, it flagged three days in short succession as anomalous, that is April 3, 2025, April 4, 2025, and April 9, 2025. Early April 2025 marked a major crash in U.S. equity markets triggered by sweeping new tariffs announced by Donald Trump, dubbed “Liberation Day”, that imposed significant import duties. That sparked broad fear, selling, and a steep drop across stocks. This autoencoder reconstruction loss indicator should not be used on its own, although high reconstruction losses could serve as potent reminder that the current market behavior is unlike anything in the past.
+Surprisingly, the autoencoder did have a higher reconstruction loss during periods of erratic market behavior. Notably, in April 2025, it flagged three days in short succession as anomalous, that is April 3, 2025, April 4, 2025, and April 9, 2025. Early April 2025 marked a major crash in U.S. equity markets triggered by sweeping new tariffs announced by Donald Trump, dubbed "Liberation Day", that imposed significant import duties. That sparked broad fear, selling, and a steep drop across stocks. This autoencoder reconstruction loss indicator should not be used on its own, although high reconstruction losses could serve as potent reminder that the current market behavior is unlike anything in the past.
 
 <br>
-![SPY vs VIX](/assets/spy_vix.png){: width="600" style="display:block; margin:0 auto;"}
+![SPY vs VIX]({{ '/assets/spy_vix.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">ARR-SPY (MSE) vs VIX</figcaption><br>
 
-![High ARR-SPY vs Low ARR-SPY](/assets/pred_power.png){: width="600" style="display:block; margin:0 auto;"}
+![High ARR-SPY vs Low ARR-SPY]({{ '/assets/pred_power.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">High ARR-SPY vs Low ARR-SPY</figcaption><br>
 
-I graphed the relationship that ARR had with VIX spikes (based on the market’s 30-day expected volatility of the S&P 500 derived from real options prices) in the testing dataset. The graphs above serve as visual heuristics that indicate that the high reconstruction losses may help serve to forecast next day VIX spikes. However, further testing is needed before definitively arriving to that conclusion.
+I graphed the relationship that ARR had with VIX spikes (based on the market's 30-day expected volatility of the S&P 500 derived from real options prices) in the testing dataset. The graphs above serve as visual heuristics that indicate that the high reconstruction losses may help serve to forecast next day VIX spikes. However, further testing is needed before definitively arriving to that conclusion.
 
 <br>
-![Lead-Lag Correlation Structure (ARR-SPY vs VIX)](/assets/lead_lag.png){: width="600" style="display:block; margin:0 auto;"}
+![Lead-Lag Correlation Structure (ARR-SPY vs VIX)]({{ '/assets/lead_lag.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Lead-Lag Correlation Structure (ARR-SPY vs VIX)</figcaption><br>
 
 To examine deeper, I graphed the correlation of high ARR on SPY with high VIX prices, across several time frames. Under closer inspection, this graph indicates that the ARR of SPY does indeed have short term forecasting ability, but this requires further testing to prove that this correlation is statistically defensible.
 
 <br>
-![Bootstrap Distribution of Area Under the ROC Curve](/assets/bootstrap_dist.png){: width="600" style="display:block; margin:0 auto;"}
+![Bootstrap Distribution of Area Under the ROC Curve]({{ '/assets/bootstrap_dist.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Bootstrap Distribution of Area Under the ROC Curve</figcaption><br>
 
@@ -241,47 +242,47 @@ The bootstrap AUC histogram shows the distribution of model performance under re
 Because this interval lies well above 0.5, the model is very likely capturing real predictive signal rather than randomness, though it remains below the level typical of strong classifiers (>0.8). The tight concentration around 0.64 indicates that performance is stable and not driven by a lucky data split, while the overall spread reflects noise and non-stationarity in financial markets. Overall, the results suggest moderate but genuine predictive power with meaningful statistical uncertainty.
 
 <br>
-![Autoencoder’s Reconstruction Error on SPY returns over Time](/assets/recon_error.png){: width="600" style="display:block; margin:0 auto;"}
+![Autoencoder's Reconstruction Error on SPY returns over Time]({{ '/assets/recon_error.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
-<figcaption style="text-align: center;">Autoencoder’s Reconstruction Error on SPY returns over Time</figcaption><br>
+<figcaption style="text-align: center;">Autoencoder's Reconstruction Error on SPY returns over Time</figcaption><br>
 
 Lastly, I examined the reconstruction error over the entire SPY dataset (even the training and validation datasets), less for rigorous testing but more for understanding the overall trend. There is a clear period with a higher baseline reconstruction error from early 2020, coinciding with the COVID-19 pandemic that caused unusual market activity.
 
-### 2. Analyzing Clustering: Investigating the Autoencoder’s Latent Dimensions
+### 2. Analyzing Clustering: Investigating the Autoencoder's Latent Dimensions
 
-![Scatter plot of recon error vs latent magnitude](/assets/recon_error_latent_mag.png){: width="600" style="display:block; margin:0 auto;"}
+![Scatter plot of recon error vs latent magnitude]({{ '/assets/recon_error_latent_mag.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Scatter plot of recon error vs latent magnitude</figcaption><br>
 
 To start analyzing the latent dimensions, I attempted to see if there was any meaningful correlation between the reconstruction MSE (which I previously suggested could signal market anomalies) with the magnitude of the latents. However, from the graph it is clear there is no clear magnitude that is favored for higher MSEs.
 
 <br>
-![Latent dimension vs SPY returns](/assets/3dims.png){: width="600" style="display:block; margin:0 auto;"}
+![Latent dimension vs SPY returns]({{ '/assets/3dims.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Latent dimension vs SPY returns</figcaption><br>
 
 For good measure, I also graphed a scatter plot of each latent dimension to SPY returns, to see if any clusters tended to be chosen for periods of higher returns. From the graphs it is clear that there is no significant correlation, as the returns for all three are around 0. I tried to explore if there was a pattern between the raw coordinates to forecasting (by Lasso regression), but unfortunately there was only negligible correlation.
 
 <br>
-![Test Set SPY Cumulative Return by Active Regime](/assets/cumulative_return.png){: width="600" style="display:block; margin:0 auto;"}
+![Test Set SPY Cumulative Return by Active Regime]({{ '/assets/cumulative_return.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Test Set SPY Cumulative Return by Active Regime</figcaption><br>
 
 I separated the test period into three lines, one tracking days assigned to each cluster. The separations look striking: green climbs to +23%, red holds at +12%, blue bleeds to -14%.
 
-The model assigns each day to a cluster based on that day’s cross-sectional returns: which stocks moved, how they moved relative to each other, the specific pattern of the session. However, by the time I have that information, the market has closed. I know I was in Cluster 0 or Cluster 2, but I don’t know what tomorrow will be.
+The model assigns each day to a cluster based on that day's cross-sectional returns: which stocks moved, how they moved relative to each other, the specific pattern of the session. However, by the time I have that information, the market has closed. I know I was in Cluster 0 or Cluster 2, but I don't know what tomorrow will be.
 
-Furthermore, the clusters aren’t stable enough to persist, so today’s assignment offers little information about tomorrow’s.
+Furthermore, the clusters aren't stable enough to persist, so today's assignment offers little information about tomorrow's.
 
 <br>
-![Line Graphs of SPY Sharpe Ratio, Win Rate, Volatility, and Cross-Correlation by Cluster](/assets/cluster_stability.png){: width="600" style="display:block; margin:0 auto;"}
+![Line Graphs of SPY Sharpe Ratio, Win Rate, Volatility, and Cross-Correlation by Cluster]({{ '/assets/cluster_stability.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Line Graphs of SPY Sharpe Ratio, Win Rate, Volatility, and Cross-Correlation by Cluster</figcaption><br>
 
-However, it is clear that this analysis of latent dimensions does not have significant forecasting ability. Look at the Sharpe ratio graph: Cluster 0 goes from 0.5 in training to 3.79 in testing. Cluster 1 swings from 0.3 to 2.64. Cluster 2 plummets from 1.0 to -1.26. These aren’t stable predictive patterns. They’re regime-dependent statistics that shift out-of-sample. The characteristics remain (look at the volatility and cross-correlation staying relatively stable), but the performance doesn’t translate.
+However, it is clear that this analysis of latent dimensions does not have significant forecasting ability. Look at the Sharpe ratio graph: Cluster 0 goes from 0.5 in training to 3.79 in testing. Cluster 1 swings from 0.3 to 2.64. Cluster 2 plummets from 1.0 to -1.26. These aren't stable predictive patterns. They're regime-dependent statistics that shift out-of-sample. The characteristics remain (look at the volatility and cross-correlation staying relatively stable), but the performance doesn't translate.
 
 <br>
-![Autocorrelation for latent dimensions](/assets/autcorr.png){: width="600" style="display:block; margin:0 auto;"}
+![Autocorrelation for latent dimensions]({{ '/assets/autcorr.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Autocorrelation for latent dimensions</figcaption><br>
 
@@ -290,11 +291,11 @@ The autocorrelation plots for z0, z1, and z2 (for the 3 latent dimensions) show 
 To visualize what defines each regime, I constructed a heatmap showing the average daily return of each stock during the days each cluster was active. For each of the three clusters, I filtered the test period to only the days assigned to that cluster, then calculated the mean return for every stock across those session.
 
 <br>
-![Top Asset Mean Daily Returns by Regime on Test Period](/assets/structure.png){: width="600" style="display:block; margin:0 auto;"}
+![Top Asset Mean Daily Returns by Regime on Test Period]({{ '/assets/structure.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Top Asset Mean Daily Returns by Regime on Test Period</figcaption><br>
 
-The heatmap displays only the top-performing stocks from each regime (the ones that appeared in at least one cluster’s top 5) and sorts them by their performance in Cluster 0. Returns are shown in basis points (hundredths of a percent) to make the magnitudes clearer. Each cell answers a simple question: “On days when this cluster was active, how did this stock typically perform?” The resulting patterns reveal the cross-sectional structure that defines each regime: not just whether the market went up or down, but which assets led and which lagged.
+The heatmap displays only the top-performing stocks from each regime (the ones that appeared in at least one cluster's top 5) and sorts them by their performance in Cluster 0. Returns are shown in basis points (hundredths of a percent) to make the magnitudes clearer. Each cell answers a simple question: "On days when this cluster was active, how did this stock typically perform?" The resulting patterns reveal the cross-sectional structure that defines each regime: not just whether the market went up or down, but which assets led and which lagged.
 
 ```text
 Cluster 0:
@@ -333,31 +334,31 @@ Clusters 0 and 1 show similar structural stability (4/5 and 3/5 asset matches), 
 
 ## Conclusion
 
-My autoencoder found exactly what I asked it to find: structure. Out of the noise emerged three stable regimes, dollar strength, tech euphoria, and commodity rotation, each interpretable, each persistent across unseen data. When gold and international equities led while tech lagged, the model recognized it immediately. When the market fractured during COVID or Liberation Day, the reconstruction loss spiked. These weren’t visual illusions. The patterns were real.
+My autoencoder found exactly what I asked it to find: structure. Out of the noise emerged three stable regimes, dollar strength, tech euphoria, and commodity rotation, each interpretable, each persistent across unseen data. When gold and international equities led while tech lagged, the model recognized it immediately. When the market fractured during COVID or Liberation Day, the reconstruction loss spiked. These weren't visual illusions. The patterns were real.
 
-What it did not become was an oracle. The clusters themselves could describe the present with uncanny precision, but when traded forward in isolation, their clarity softened. Markets don’t reward observation alone but anticipation. In that sense, the regime clusters were not forecasting engines. They were measurement instruments to make sense of the current state of the stock market rather than to forecast what state would tomorrow be.
+What it did not become was an oracle. The clusters themselves could describe the present with uncanny precision, but when traded forward in isolation, their clarity softened. Markets don't reward observation alone but anticipation. In that sense, the regime clusters were not forecasting engines. They were measurement instruments to make sense of the current state of the stock market rather than to forecast what state would tomorrow be.
 
-Still, not all signal vanished at the boundary of prediction. The out-of-sample ARR on SPY behaved differently. When it spiked, it did not promise direction, but it did warn of instability. Used alone, it is not a trading system. However, used alongside volatility, positioning, and risk constraints, it becomes a potent conditional signal, one that says “I’ve never seen the market behave like this”.
+Still, not all signal vanished at the boundary of prediction. The out-of-sample ARR on SPY behaved differently. When it spiked, it did not promise direction, but it did warn of instability. Used alone, it is not a trading system. However, used alongside volatility, positioning, and risk constraints, it becomes a potent conditional signal, one that says "I've never seen the market behave like this".
 
 ### Future Considerations
 
 In the future, using high frequency LOB data could likely yield better results as there is still market microstructure that has not been arbitraged away yet, likely due to the exclusivity of the data as well as the infrastructure needed to trade at the speeds necessary. That being said making a deep learning model that can analyze fast enough to trade at that time frame could prove a challenge in itself. In fact I intended to use LOB data but I could not get enough to train a robust model, so I pivoted to daily OHLCV which was easier to obtain.
 
 <br>
-![Limit Order Book](/assets/LOB.png){: width="600" style="display:block; margin:0 auto;"}
+![Limit Order Book]({{ '/assets/LOB.png' | relative_url }}){: width="600" style="display:block; margin:0 auto;"}
 
 <figcaption style="text-align: center;">Limit Order Book</figcaption><br>
 
-Furthermore, I would experiment with replacing the standard dense layers in the Encoder/Decoder with LSTMs or GRUs. This would allow the model to learn how the transition from Regime A to Regime B impacts the latent space, potentially making the latent states less “memoryless”, as suggested by my autocorrelation analysis. Having a more diverse dataset as well as using a grid-search to obtain the best hyperparameters could likely yield better results, and I will think about implementing these features in the future.
+Furthermore, I would experiment with replacing the standard dense layers in the Encoder/Decoder with LSTMs or GRUs. This would allow the model to learn how the transition from Regime A to Regime B impacts the latent space, potentially making the latent states less "memoryless", as suggested by my autocorrelation analysis. Having a more diverse dataset as well as using a grid-search to obtain the best hyperparameters could likely yield better results, and I will think about implementing these features in the future.
 
 ### Getting the Code
 
-I’ve uploaded all the code to Github, so you can replicate these findings: MarketAutoencoder. All of the code has been released as well as the graphs generated by the scripts.
+I've uploaded all the code to Github, so you can replicate these findings: MarketAutoencoder. All of the code has been released as well as the graphs generated by the scripts.
 
 If you found this interesting, it may be worth reading my previous project where I implemented a hybrid GARCH-LSTM. All of the code for that project is open source as well.
 
 ### Closing
 
-At its core, the market remains a contest of information. Once human-designed features are exhausted, the remaining edge lies in extracting patterns too high-dimensional for intuition. Autoencoders don’t invent prophecy, but they do expand perception. They scan raw returns from angles no trader or hand-built model could ever fully explore.
+At its core, the market remains a contest of information. Once human-designed features are exhausted, the remaining edge lies in extracting patterns too high-dimensional for intuition. Autoencoders don't invent prophecy, but they do expand perception. They scan raw returns from angles no trader or hand-built model could ever fully explore.
 
-Einstein didn’t change reality when he introduced General Relativity, but he changed the lens through which reality is seen. These architectures do the same for markets. And in a game defined by information, a broader lens is still an advantage.
+Einstein didn't change reality when he introduced General Relativity, but he changed the lens through which reality is seen. These architectures do the same for markets. And in a game defined by information, a broader lens is still an advantage.

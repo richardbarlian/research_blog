@@ -31,6 +31,10 @@
   font-size: 0.85rem;
 }
 
+.post-content p {
+  text-align: justify;
+}
+
 .about-intro {
   display: flex;
   align-items: flex-start;
@@ -141,7 +145,7 @@ mjx-container[display="true"] {
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 100%;
-  padding-bottom: 0.5rem; // space for scrollbar
+  padding: 0.5rem 0;
 }
 
 pre,

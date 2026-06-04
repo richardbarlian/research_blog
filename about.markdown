@@ -7,10 +7,10 @@ permalink: /about/
 <div class="about-intro">
   <img src="{{ '/assets/me.jpeg' | relative_url }}" alt="Richard Barlian">
   <div>
-    <p>Ralph Waldo Emerson once wrote "Trust thyself: every heart vibrates to that iron string".</p>
-    <p>I'm Richard, a 16-year-old from Bali, Indonesia. I'm now living in Singapore on an ASEAN scholarship at Zhonghua Secondary School. I don't fully trust myself in implementing these architectures correctly -- I've had my fair share of patching sketchy code with sketchier fixes, slapping on a tighter gradient clip and praying training magically goes smooth.</p>
-    <p>Neither does everyone know what I'm doing. People either think I'm Jimmy Neutron himself or a 16 year old who spends their entire day messing around prompting ChatGPT to do my homework.</p>
-    <p>But I think the message is still important. So this blog is me trusting myself anyway, working through deep learning from first principles, with all the shape errors and mid-training brutal Kullback-Leibler divergence blow-ups. I hope you can learn something useful from my journey too.</p>
+    <p>Ralph Waldo Emerson once wrote "Trust thyself: every heart vibrates to that iron string."</p>
+    <p>I'm Richard, a 16-year-old from Bali, Indonesia. I'm currently living in Singapore on an ASEAN scholarship at Zhonghua Secondary School. I don't fully trust myself to implement these architectures correctly -- I've had my fair share of patching sketchy code with sketchier fixes, like slapping on a tighter gradient clip and praying training magically goes smoothly.</p>
+    <p>Not everyone knows what I'm doing either. People either think I'm Jimmy Neutron himself or a 16-year-old who spends their entire day messing around prompting ChatGPT to do their homework.</p>
+    <p>But I think the message is still important. So this blog is me trusting myself anyway, working through deep learning from first principles, with all the shape errors and brutal mid-training Kullback-Leibler divergence blow-ups. I hope you can learn something useful from my journey too.</p>
   </div>
 </div>
 

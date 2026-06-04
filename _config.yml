@@ -18,7 +18,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Me and Deep Learning
+title: Deep Learning and Me
 author: Richard Barlian
 email: richard.barlian@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"

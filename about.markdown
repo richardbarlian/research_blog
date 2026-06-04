@@ -82,7 +82,7 @@ permalink: /about/
 
     <p>Neither does everyone know what I'm doing. People either think I'm Jimmy Neutron himself or a 16 year old who spends their entire day messing around prompting ChatGPT to do my homework.</p>
 
-    <p>But I think the message is still important. So this blog is me trusting myself anyway, with all the shape errors and mid-training brutal Kullback-Leiber divergence blow-ups. I hope you can learn something useful from my journey too.</p>
+    <p>But I think the message is still important. So this blog is me trusting myself anyway, with all the shape errors and mid-training brutal Kullback–Leibler divergence blow-ups. I hope you can learn something useful from my journey too.</p>
 
   </div>
 </div>

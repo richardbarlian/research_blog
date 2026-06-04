@@ -7,19 +7,28 @@ layout: default
   <h1 class="post-title">{{ page.title }}</h1>
   <br />
   {%- endif -%} {{ content }} {%- if site.posts.size > 0 -%}
-  <!-- <h1 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h1> -->
+  <div class="tag-filter" style="margin-bottom: 1.5rem">
+    <button class="tag-btn active" data-tag="all">All</button>
+    {%- assign all_categories = site.posts | map: "categories" | flatten | uniq
+    -%} {%- for category in all_categories -%}
+    <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
+    {%- endfor -%}
+  </div>
+
   <ul class="post-list">
     {%- for post in site.posts -%}
-    <li>
-      <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+    <li data-categories="{{ post.categories | join: ' ' }}">
+      <span class="post-meta">
+        {{ post.date | date: "%b %-d, %Y" }}{%- if post.categories.size > 0 -%}
+        <span style="margin: 0 0.3rem">·</span>{{ post.categories | join: ", "
+        }} {%- endif -%}
+      </span>
       <h3>
         <a class="post-link" href="{{ post.url | relative_url }}">
           {{ post.title | escape }}
         </a>
       </h3>
-
       <p class="post-excerpt">{{ post.excerpt | strip_html }}</p>
-
       {%- assign words = post.content | number_of_words -%} {%- assign minutes =
       words | divided_by: 200 -%} {%- if minutes < 1 -%}{%- assign minutes = 1
       -%}{%- endif -%}
@@ -27,7 +36,22 @@ layout: default
     </li>
     {%- endfor -%}
   </ul>
-
-  <!-- <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p> -->
   {%- endif -%}
 </div>
+
+<script>
+  document.querySelectorAll(".tag-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".tag-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const tag = btn.dataset.tag;
+      document.querySelectorAll(".post-list li").forEach((post) => {
+        const categories = post.dataset.categories.split(" ");
+        post.style.display =
+          tag === "all" || categories.includes(tag) ? "" : "none";
+      });
+    });
+  });
+</script>

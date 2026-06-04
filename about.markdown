@@ -37,7 +37,7 @@ permalink: /about/
         <svg class="svg-icon">
           <use xlink:href="{{ '/assets/minima-social-icons.svg#linkedin' | relative_url }}"></use>
         </svg>
-        <span class="username">richard-henry-barlian-76b044361</span>
+        <span class="username">richardbarlian</span>
       </a>
     </li>
 

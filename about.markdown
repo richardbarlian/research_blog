@@ -33,7 +33,7 @@ permalink: /about/
     </li>
 
     <li>
-      <a href="https://www.linkedin.com/in/richard-henry-barlian-76b044361">
+      <a href="https://www.linkedin.com/in/richardbarlian">
         <svg class="svg-icon">
           <use xlink:href="{{ '/assets/minima-social-icons.svg#linkedin' | relative_url }}"></use>
         </svg>

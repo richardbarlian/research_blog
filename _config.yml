@@ -25,7 +25,7 @@ description: >- # this means to ignore newlines until "baseurl:"
 baseurl: "/research_blog"
 url: "https://richardbarlian.github.io"
 github_username: richardbarlian
-linkedin_username: richard-henry-barlian-76b044361
+linkedin_username: richardbarlian
 
 # Build settings
 theme: minima

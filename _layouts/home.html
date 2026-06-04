@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="home">
+  {%- if page.title -%}
+  <h1 class="post-title">{{ page.title }}</h1>
+  <br />
+  {%- endif -%} {{ content }} {%- if site.posts.size > 0 -%}
+  <!-- <h1 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h1> -->
+  <ul class="post-list">
+    {%- for post in site.posts -%}
+    <li>
+      <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+      <h3>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+          {{ post.title | escape }}
+        </a>
+      </h3>
+
+      <p class="post-excerpt">{{ post.excerpt | strip_html }}</p>
+
+      {%- assign words = post.content | number_of_words -%} {%- assign minutes =
+      words | divided_by: 200 -%} {%- if minutes < 1 -%}{%- assign minutes = 1
+      -%}{%- endif -%}
+      <span class="post-meta">{{ minutes }} min read</span>
+    </li>
+    {%- endfor -%}
+  </ul>
+
+  <!-- <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p> -->
+  {%- endif -%}
+</div>

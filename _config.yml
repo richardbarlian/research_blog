@@ -28,6 +28,9 @@ url: "https://richardbarlian.github.io"
 github_username: richardbarlian
 linkedin_username: richardbarlian
 
+markdown: kramdown
+highlighter: rouge
+
 # Build settings
 theme: minima
 # plugins:

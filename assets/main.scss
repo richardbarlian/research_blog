@@ -124,3 +124,27 @@
     border-color: #333;
   }
 }
+
+.MathJax {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+mjx-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding-bottom: 0.5rem; // space for scrollbar
+}
+
+pre,
+code {
+  background: #fcfbf7 !important;
+}

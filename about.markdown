@@ -10,7 +10,7 @@ permalink: /about/
   <div>
     <p>Ralph Waldo Emerson once wrote "Trust thyself: every heart vibrates to that iron string".</p>
 
-    <p>I don't fully trust myself in implementing these architectures correctly -- I've had my fair share of patching sketchy code with sketchier fixes, slapping on a tighter gradient clip and praying training magically goes smooth.</p>
+    <p>I don't fully trust myself in implementing these architectures correctly -- I've had my fair share of patching sketchy code with sketchier fixes, slapping on a tighter gradient clip and praying training magically goes smoothly.</p>
 
     <p>Neither does everyone know what I'm doing. People either think I'm Jimmy Neutron himself or a 16 year old who spends their entire day messing around prompting ChatGPT to do my homework.</p>
 

@@ -296,7 +296,7 @@ All models are evaluated on the same train/validation/test split. To ensure each
 **Figure 1** visualizes RMSE across all configurations. The wide error bars of w/o drift cond. and w/o everything relative to HMSPC full highlight that input conditioning improves not just mean accuracy but training stability across seeds.
 
 <figure style="text-align:center; padding-bottom:30px ">
-  <img src="{{ '/assets/rmse_bar.png' | relative_url }}" width="700">
+  <img src="{{ '/assets/RMSE_bar.png' | relative_url }}" width="700">
   <figcaption>Figure 1: RMSE (mV) across all model configurations averaged over 5 seeds (± std). Shaded regions distinguish baselines (left) from HMSPC ablations (right). The dashed line marks HMSPC (full) mean RMSE for reference.</figcaption>
 </figure>
 

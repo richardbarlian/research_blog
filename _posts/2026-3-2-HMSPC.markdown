@@ -7,11 +7,11 @@ categories: time-series energy-systems
 excerpt: By replacing purely autonomous latent dynamics in Neural ODEs and Latent ODEs with input-conditioned, gated continuous-time evolution, HMSPC better captures regime-dependent structure in battery voltage time series data. This inductive bias, combined with variational inference and uncertainty-aware decoding, leads to consistent gains over Latent ODEs (Rubanova et al., 2019) in both reconstructive accuracy and calibration.
 ---
 
-## 1 Abstract
+## Abstract
 
 Battery voltage dynamics are irregularly sampled, noise-corrupted, and strongly regime-dependent, properties that challenge standard sequential models. I propose _HMSPC_ (Hybrid Mechanistic-Stochastic Physical-Continuous Model), a continuous-time latent variable model that addresses these challenges through two key components: a gated input-conditioned latent ODE that explicitly incorporates exogenous observations (current and temperature) into continuous-time state evolution, and a heteroscedastic observation model with uncertainty regularization that produces calibrated predictive variance. Built on the Latent ODE<sup>[[1]](#ref-1)</sup> framework, HMSPC replaces purely autonomous latent dynamics with a learned gating mechanism that adaptively controls how strongly operating conditions influence trajectory evolution at each integration step. Evaluated on the MIT-Stanford dataset<sup>[[2]](#ref-2)</sup> against Latent ODE and Vanilla Neural ODE<sup>[[3]](#ref-3)</sup> baselines across 5 seeds, HMSPC achieves a mean RMSE of 32.37 $\pm$ 1.34 mV compared to 58.33 $\pm$ 4.19 mV for Latent ODE, yielding a 45% reduction, alongside well-calibrated uncertainty estimates (ECE 0.078). Ablation studies confirm that input-conditioned drift and heteroscedastic noise each contribute meaningfully to both accuracy and calibration.
 
-## 2 Introduction
+## 1 Introduction
 
 Lithium-ion batteries are central to the energy transition, powering electric vehicles, grid storage, and consumer electronics. Accurate modeling of battery voltage dynamics is critical for state-of-health estimation, degradation prediction, and safe operation. Yet battery data presents a fundamental challenge for sequential models: observations are irregularly spaced in time, corrupted by sensor noise, and strongly influenced by external driving conditions such as charging current and temperature.
 
@@ -31,7 +31,7 @@ My main contributions are:
 - A heteroscedastic observation model with an uncertainty regularization objective that produces calibrated, input-conditioned predictive variance, replacing the fixed isotropic noise assumption of standard Latent ODEs.
 - Empirical demonstration of consistent gains over Latent ODE and Neural ODE baselines in both reconstruction accuracy and uncertainty calibration on real battery cycling data.
 
-## 3 Background
+## 2 Background
 
 Modeling irregularly sampled time series remains a persistent challenge in sequential learning, particularly in domains where observations are sparse, noisy, and unevenly spaced in time. Standard recurrent neural networks (RNNs) assume discrete and regularly spaced observations, limiting their applicability in such settings.
 
@@ -41,9 +41,9 @@ To address this limitation, the ODE-RNN framework introduces discrete updates vi
 
 In practical applications such as battery state-of-health estimation, system dynamics are strongly influenced by external driving variables such as current and temperature, suggesting the need for explicitly input-conditioned continuous-time models. This motivates models that incorporate structured input-conditioning within continuous-time latent dynamics.
 
-## 4 Method
+## 3 Method
 
-## 4.1 Problem Formulation
+## 3.1 Problem Formulation
 
 I consider an irregularly sampled multivariate time series $$\{x_{t_i}\}_{i=1}^{T}$$ with strictly increasing timestamps $t_1 < t_2 < \cdots < t_T$. Each observation is defined as:
 
@@ -59,7 +59,7 @@ $$
 
 where $$V_{t_i}$$, $$I_{t_i}$$, and $\text{Temp}_{t_i}$ are the observed voltage, current, and temperature at timestamp $t_i$ respectively. I additionally define a per-timestamp observation mask $$m_{t_i} \in \{0,1\}$$, which applies jointly to all three channels denoting whether a timestamp is either fully observed or fully missing. Inter-observation time gaps are defined as $$\Delta t_i = t_{i+1} - t_i$$ for $$i = 1, \ldots, T-1$$. I denote the full observed sequence as $$\{x_{t_i}\}_{i=1}^{T}$$.
 
-## 4.2 Variational ODE-RNN Encoder
+## 3.2 Variational ODE-RNN Encoder
 
 The encoder maps the observed sequence to a distribution over the initial latent state $z_0$. It does so by maintaining a latent hidden state $h(t) \in \mathbb{R}^{d_H}$, initialized to zero at $t_T$, that evolves continuously between observations and is updated discretely at each observed timestamp. The encoder processes observations in reverse chronological order (from $t_T$ to $t_1$) allowing information from later observations to be propagated backward through the continuous dynamics so that $h(t_1)$ summarizes the entire sequence.
 
@@ -109,7 +109,7 @@ $$
 z_0 = \mu_{\psi} + \sigma_{\psi} \odot \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)
 $$
 
-## 4.3 Input-Conditioned Latent Dynamics
+## 3.3 Input-Conditioned Latent Dynamics
 
 I define exogenous inputs as the current and temperature at each timestep:
 
@@ -168,7 +168,7 @@ $$
 
 with initial condition $z_{t_1} \sim q_{\psi}(z_0 \mid x)$.
 
-## 4.4 Observation Model
+## 3.4 Observation Model
 
 At each timestep, voltage is decoded from the latent state and normalized inputs via a heteroscedastic Gaussian likelihood, in contrast to standard Latent ODEs which assume fixed isotropic observation noise. Both the mean and variance are conditioned on the latent state and inputs, allowing uncertainty to vary with the operating regime:
 
@@ -191,7 +191,7 @@ $$
 
 The $10^{-4}$ floor prevents numerical instability from near-zero variance.
 
-## 4.5 Training Objective
+## 3.5 Training Objective
 
 The total loss is a weighted sum of three terms: reconstruction, KL regularization, and uncertainty calibration.
 
@@ -251,21 +251,21 @@ $$
 \right)^2
 $$
 
-Gradients are stopped through $\mu_{\text{obs},t_i}$ to prevent the uncertainty loss from distorting the mean prediction _(see [Appendix 11.1](#stopping-gradients))_.
+Gradients are stopped through $\mu_{\text{obs},t_i}$ to prevent the uncertainty loss from distorting the mean prediction _(see [Appendix 10.1](#stopping-gradients))_.
 
 ### Training schedule
 
 <!-- prettier-ignore -->
 During the first 15 epochs, gradients through $$ \sigma^2_{\text{obs}} $$ in $\mathcal{L}_{\text{recon}}$ are stopped, allowing the mean network to stabilize before uncertainty estimation begins. $\beta$ is annealed linearly from 0 over the same period.
 
-## 5 Experiments
+## 4 Experiments
 
 All models are trained with the same base configuration to ensure fair comparison. Each model is trained for up to 50 epochs with early stopping (patience 10), using the Adam optimizer<sup>[[8]](#ref-8)</sup> (lr $= 10^{-3}$) with a ReduceLROnPlateau scheduler (factor 0.5, patience 3) and gradient clipping (max norm 1.0). Latent dimensions and hidden dimensions are fixed at $d_z = 32$ and $d_H = 64$ respectively. Linear layers are initialized with Xavier uniform initialization<sup>[[5]](#ref-5)</sup>,
-GRU weights with orthogonal initialization<sup>[[6]](#ref-6)</sup>, and biases to zero, consistent across all models. KL annealing is applied to both HMSPC and Latent ODE, warming up linearly from 0 to $\beta_{\text{KL}} = 10^{-3}$ over 15 and 10 epochs respectively. HMSPC additionally warms up $\beta$ from 0 to 0.3 over 15 epochs alongside the uncertainty warmup described in [Section 4.5](#45-training-objective) (for more details on hyperparameters, _see [Appendix 11.2](#hyperparams)_).
+GRU weights with orthogonal initialization<sup>[[6]](#ref-6)</sup>, and biases to zero, consistent across all models. KL annealing is applied to both HMSPC and Latent ODE, warming up linearly from 0 to $\beta_{\text{KL}} = 10^{-3}$ over 15 and 10 epochs respectively. HMSPC additionally warms up $\beta$ from 0 to 0.3 over 15 epochs alongside the uncertainty warmup described in [Section 4.5](#45-training-objective) (for more details on hyperparameters, _see [Appendix 10.2](#hyperparams)_).
 
-All models are evaluated on the same train/validation/test split. To ensure each split contains a representative distribution of battery cycle lives, cells are stratified by cycle life using 20 quantile bins, with each bin split 70/15/15 across train, validation, and test _(see [Appendix 11.3](#stratified-split))_. This prevents the common failure mode where short-life and long-life cells cluster in different splits, which would cause evaluation metrics to reflect distributional shift rather than model quality, causing unreasonable decreases in performance during out-of-sample testing. Cells with missing cycle life labels are assigned to the training set. Each model is evaluated over 5 seeds, with mean and standard deviation reported across seeds.
+All models are evaluated on the same train/validation/test split. To ensure each split contains a representative distribution of battery cycle lives, cells are stratified by cycle life using 20 quantile bins, with each bin split 70/15/15 across train, validation, and test _(see [Appendix 10.3](#stratified-split))_. This prevents the common failure mode where short-life and long-life cells cluster in different splits, which would cause evaluation metrics to reflect distributional shift rather than model quality, causing unreasonable decreases in performance during out-of-sample testing. Cells with missing cycle life labels are assigned to the training set. Each model is evaluated over 5 seeds, with mean and standard deviation reported across seeds.
 
-## 6 Results
+## 5 Results
 
 **Table 1** reports reconstruction accuracy of HMSPC against Latent ODE and Vanilla Neural ODE baselines, evaluated on the held-out test set across 5 seeds. HMSPC achieves a mean RMSE of 32.37 $\pm$ 1.34 mV and $R^2$ of 0.9944, outperforming Latent ODE by 45% in RMSE and Vanilla Neural ODE by 50%, with substantially tighter variance across seeds.
 
@@ -277,7 +277,7 @@ All models are evaluated on the same train/validation/test split. To ensure each
 | Latent ODE           | $5$ | $58.33 \pm 4.19$                   | $0.9817 \pm 0.0024$                   |
 | Vanilla Neural ODE   | $5$ | $64.85 \pm 3.61$                   | $0.9775 \pm 0.0014$                   |
 
-**Table 2** breaks down the contribution of each architectural component through a systematic ablation study, additionally reporting NLL and Expected Calibration Error (ECE)<sup>[[9]](#ref-9)</sup> to assess uncertainty quality. All ablation variants use the same training setup as the full HMSPC model (_see [Appendix 11.2](#hyperparams)_).
+**Table 2** breaks down the contribution of each architectural component through a systematic ablation study, additionally reporting NLL and Expected Calibration Error (ECE)<sup>[[9]](#ref-9)</sup> to assess uncertainty quality. All ablation variants use the same training setup as the full HMSPC model (_see [Appendix 10.2](#hyperparams)_).
 
 **Table 2: Ablation Study**
 
@@ -311,25 +311,25 @@ All models are evaluated on the same train/validation/test split. To ensure each
 * The KL spike in early epochs is expected as $\beta_{\text{KL}}$ warms up linearly from 0 to $10^{-3}$ over the first 15 epochs. The uncertainty loss $\mathcal{L}_{\text{unc}}$ is only logged for training so no validation curve appears.
 </figcaption>
 
-## 7 Discussion
+## 6 Discussion
 
-### 7.1 Drift Conditioning
+### 6.1 Drift Conditioning
 
 The most noticeable finding from the ablation study is the variance of the ablation without drift conditioning. Removing drift conditioning (w/o drift cond.) produces a standard deviation of $\pm$ 23.84 mV, nearly 18$\times$ higher than HMSPC full ($\pm$ 1.34 mV), visible in the wide error bars of Figure 1. This suggests that input conditioning is not just improving accuracy on average, but actively stabilizing the latent trajectory during training. Without current and temperature to anchor the drift, the model must explain all regime-dependent structure through the latent state alone, making it sensitive to initialization and more prone to divergence across seeds.
 
-### 7.2 Learned Gate
+### 6.2 Learned Gate
 
 Hard conditioning without the learned gate (hard cond., no gate) achieves 37.97 mV RMSE compared to 32.37 mV for the full gated model, providing a meaningful gap despite using nearly identical architecture. The gate learns to modulate how strongly the inputs influence the drift at each step, effectively acting as a soft switch between input-driven and autonomous dynamics. This is particularly useful for battery data where inputs are highly informative during fast charge/discharge transitions but contribute less during rest periods.
 
-### 7.3 Heteroscedastic Noise
+### 6.3 Heteroscedastic Noise
 
 Removing $\Sigma_\theta$ (w/o $\Sigma_\theta$) yields a slightly lower mean RMSE (30.11 vs 32.37 mV), but ECE degrades substantially from 0.078 to 0.159. The difference in RMSE is within one standard deviation and likely not statistically significant, while the calibration gap is large and consistent. For battery management systems, where overconfident predictions of voltage bounds can lead to unsafe operation, calibrated uncertainty is arguably more valuable than marginal RMSE gains. The heteroscedastic model also adds an auxiliary loss $$\mathcal{L}_{\text{unc}}$$ that pushes $\sigma^2_{\text{obs}}$ to track residuals, providing an additional training signal beyond reconstruction alone.
 
-### 7.4 Computational Cost
+### 6.4 Computational Cost
 
-HMSPC incurs a 1.32$\times$ FLOPs overhead relative to Latent ODE (see [Appendix 11.4](#computational-cost)), driven primarily by the additional gate and delta networks in the drift. Given the 45% reduction in RMSE, this represents a favorable tradeoff, particularly since the additional parameters are small feed-forward networks rather than expensive attention or recurrent layers.
+HMSPC incurs a 1.32$\times$ FLOPs overhead relative to Latent ODE (see [Appendix 10.4](#computational-cost)), driven primarily by the additional gate and delta networks in the drift. Given the 45% reduction in RMSE, this represents a favorable tradeoff, particularly since the additional parameters are small feed-forward networks rather than expensive attention or recurrent layers.
 
-## 8 Conclusion
+## 7 Conclusion
 
 I presented HMSPC, a continuous-time latent variable model that extends the Latent ODE framework with three targeted improvements for battery voltage modeling. First, input-conditioned drift explicitly incorporates exogenous inputs current and temperature into the latent ODE, replacing purely autonomous dynamics with physically grounded evolution that reflects battery behavior (regime-dependent and driven by external operating conditions), providing a stronger inductive bias that contributed to empirical superiority over baselines. Second, a learned gating mechanism controls how strongly inputs influence the drift at each integration step, allowing the model to selectively incorporate input information rather than applying fixed conditioning throughout. Third, a heteroscedastic observation model replaces the fixed isotropic noise assumption of standard Latent ODEs with input and state-conditioned predictive variance, producing uncertainty estimates that adapt to the operating regime and remain calibrated across charging conditions.
 
@@ -337,38 +337,38 @@ Together these changes address the core mismatch between the Latent ODE's induct
 
 Note the code for the project will be open-sourced on Github shortly.
 
-## 9 Limitations
+## 8 Limitations
 
-### 9.1 Single dataset
+### 8.1 Single dataset
 
 All experiments are conducted on the MIT-Stanford battery dataset. While this dataset is widely used and contains a diverse range of cycle lives and charging protocols, generalization to other battery chemistries, form factors, or cycling conditions remains unvalidated.
 
-### 9.2 Forward Euler integration
+### 8.2 Forward Euler integration
 
 HMSPC uses fixed-step forward Euler to discretize the latent ODE, which is crude relative to adaptive solvers such as dopri5 used in the original Neural ODE framework. All baselines use the same integrator, so comparisons are fair, but absolute performance may improve with higher-order methods.
 
-### 9.3 Window-based evaluation
+### 8.3 Window-based evaluation
 
 Models are trained and evaluated on fixed-length windows of 120 timesteps rather than full charge/discharge cycles. This simplifies batching but means the model has no explicit notion of cycle number or long-range degradation trends.
 
-### 9.4 Small seed count
+### 8.4 Small seed count
 
 Results are averaged over 5 seeds. While this is standard for ablation studies, some ablation variants show high variance across seeds (notably w/o drift cond., $\pm 23.84$ mV), suggesting conclusions about those configurations should be interpreted cautiously.
 
-### 9.5 No physics-based baseline
+### 8.5 No physics-based baseline
 
 HMSPC is compared only against data-driven baselines. Hybrid physics-informed models such as equivalent circuit models augmented with neural corrections represent a natural comparison that is left to future work.
 
-## 10 Ethics / deployment risks
+## 9 Ethics / deployment risks
 
 Battery management systems are safety-critical as miscalibrated voltage predictions can contribute to thermal runaway, cell damage, or unsafe charging decisions. While HMSPC produces calibrated uncertainty estimates that make overconfidence less likely, no model should be deployed in a real BMS without extensive validation on the target hardware, chemistry, and operating conditions. Results here are on a research dataset under controlled conditions and should not be interpreted as production-ready.
 More broadly, improved battery models could accelerate electric vehicle adoption and grid storage deployment, which are net positives for decarbonization. The dataset used (MIT-Stanford) is publicly available and contains no personally identifiable information.
 
-## 11 Appendix
+## 10 Appendix
 
 <a id="stopping-gradients"></a>
 
-### 11.1 Stopping gradients through $$\mu_{\text{obs}}$$
+### 10.1 Stopping gradients through $$\mu_{\text{obs}}$$
 
 From the code:
 
@@ -388,7 +388,7 @@ So the responsibilities are cleanly separated:
 
 <a id="hyperparams"></a>
 
-### 11.2 Hyperparameters
+### 10.2 Hyperparameters
 
 All hyperparameters shared across every model (NODE, Latent ODE, HMSPC and all ablations):
 
@@ -427,7 +427,7 @@ HMSPC only:
 
 <a id="stratified-split"></a>
 
-### 11.3 Stratified Data Split
+### 10.3 Stratified Data Split
 
 Cells are stratified by cycle life to ensure all splits contain a representative range of battery lifetimes. Cells with missing cycle life labels are assigned to training only.
 
@@ -464,7 +464,7 @@ train_cells.extend(nan_cells)
 
 <a id="computational-cost"></a>
 
-### 11.4 Computational Cost
+### 10.4 Computational Cost
 
 | Model                | Params $\downarrow$ | FLOPs $\downarrow$ | Relative FLOPs |
 | -------------------- | ------------------- | ------------------ | -------------- |

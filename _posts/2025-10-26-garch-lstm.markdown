@@ -23,7 +23,7 @@ Traditional finance has long used GARCH models, statistical workhorses that capt
 Modern AI has LSTMs, excellent at learning temporal dependencies but often lacking statistical rigor and prone to overfitting past data.
 
 <figure style="text-align:center">
-  <img src="{{ '/assets/AAPL_GARCH.webp' | relative_url }}" width="700">
+  <img src="{{ '/assets/AAPL_garch.webp' | relative_url }}" width="700">
   <figcaption>GARCH fitted on daily AAPL returns</figcaption>
 </figure>
 

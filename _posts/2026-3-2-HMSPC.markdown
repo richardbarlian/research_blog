@@ -289,15 +289,15 @@ All models are evaluated on the same train/validation/test split. To ensure each
 | hard cond. (no gate) | $5$ | $37.97 \pm 7.96$                   | $0.9919 \pm 0.0038$                   | $-2.489 \pm 0.148$                   | $0.0710 \pm 0.0199$                   |
 | w/o everything       | $5$ | $48.13 \pm 21.15$                  | $0.9857 \pm 0.0119$                   | $-1.686 \pm 0.405$                   | $0.1465 \pm 0.0233$                   |
 
-<figcaption style="margin-top: -20px; padding-bottom:30px; font-style:italic">
+<figcaption style="margin-top: -20px; padding-bottom:20px; font-style:italic">
 * Bold denotes best per column. The RMSE and $R^2$ gains of w/o $\Sigma_\theta$ ​over HMSPC (full) are within one standard deviation and not statistically significant; notably, removing $\Sigma_\theta$ substantially degrades calibration (ECE: 0.1586 vs. 0.0780).
 </figcaption>
 
 **Figure 1** visualizes RMSE across all configurations. The wide error bars of w/o drift cond. and w/o everything relative to HMSPC full highlight that input conditioning improves not just mean accuracy but training stability across seeds.
 
-<figure style="text-align:center; padding-bottom:30px ">
+<figure style="text-align:center; padding-bottom:20px ">
   <img src="{{ '/assets/RMSE_bar.png' | relative_url }}" width="700">
-  <figcaption>Figure 1: RMSE (mV) across all model configurations averaged over 5 seeds (± std). Shaded regions distinguish baselines (left) from HMSPC ablations (right). The dashed line marks HMSPC (full) mean RMSE for reference.</figcaption>
+  <figcaption>Figure 1: RMSE (mV) across all model configurations averaged over 5 seeds ($\pm$ std). Shaded regions distinguish baselines (left) from HMSPC ablations (right). The dashed line marks HMSPC (full) mean RMSE for reference.</figcaption>
 </figure>
 
 **Figure 2** shows the training and validation curves for HMSPC (full) across total loss, reconstruction loss, and KL divergence for a single representative seed (seed 42).
@@ -329,13 +329,17 @@ Removing $\Sigma_\theta$ (w/o $\Sigma_\theta$) yields a slightly lower mean RMSE
 
 HMSPC incurs a 1.32$\times$ FLOPs overhead relative to Latent ODE (see [Appendix 10.4](#computational-cost)), driven primarily by the additional gate and delta networks in the drift. Given the 45% reduction in RMSE, this represents a favorable tradeoff, particularly since the additional parameters are small feed-forward networks rather than expensive attention or recurrent layers.
 
+### 6.5 Latent Space Structure
+
+As a qualitative aside, [Figure A1](#vector) in the Appendix visualizes the learned base drift $f_{\theta_1}$ projected onto the first two latent dimensions. The vector field reveals a structured attractor near $(-1, -1)$ in latent space, suggesting the model has learned a meaningful resting state that trajectories converge toward in the absence of input forcing. Whether this structure corresponds to interpretable battery states such as open-circuit equilibrium is an open question, and probing the geometry of the learned latent space represents an interesting direction for future work.
+
 ## 7 Conclusion
 
 I presented HMSPC, a continuous-time latent variable model that extends the Latent ODE framework with three targeted improvements for battery voltage modeling. First, input-conditioned drift explicitly incorporates exogenous inputs current and temperature into the latent ODE, replacing purely autonomous dynamics with physically grounded evolution that reflects battery behavior (regime-dependent and driven by external operating conditions), providing a stronger inductive bias that contributed to empirical superiority over baselines. Second, a learned gating mechanism controls how strongly inputs influence the drift at each integration step, allowing the model to selectively incorporate input information rather than applying fixed conditioning throughout. Third, a heteroscedastic observation model replaces the fixed isotropic noise assumption of standard Latent ODEs with input and state-conditioned predictive variance, producing uncertainty estimates that adapt to the operating regime and remain calibrated across charging conditions.
 
 Together these changes address the core mismatch between the Latent ODE's inductive biases and the structure of battery data. Evaluated against Latent ODE and Vanilla Neural ODE baselines on the MIT-Stanford battery dataset across 5 seeds, HMSPC achieves a 45% reduction in RMSE alongside well-calibrated uncertainty estimates (ECE 0.078). Ablation studies confirm that each component contributes independently as removing drift conditioning destabilizes training, removing the gate degrades accuracy, and removing heteroscedastic noise collapses calibration. Future work should explore adaptive ODE solvers, multi-dataset evaluation across battery chemistries, and extensions toward direct state-of-health prediction from the learned latent trajectory.
 
-Note the code for the project will be open-sourced on Github shortly.
+All the code for this project has been open-sourced and can be accessed at [HSMPC Github](https://github.com/richardbarlian/HMSPC). Results are reproducible via fixed seeds, although all experiments were run on CPU (MacBook Pro) and the code has not been tested on GPU or other accelerator hardware. Minor numerical differences may occur across platforms.
 
 ## 8 Limitations
 
@@ -474,6 +478,20 @@ train_cells.extend(nan_cells)
 | w/o drift cond.      | $47.01\text{K}$     | $5.12\text{M}$     | $1.06\times$   |
 | Latent ODE           | $44.70\text{K}$     | $4.85\text{M}$     | $1.00\times$   |
 | Vanilla Neural ODE   | $14.95\text{K}$     | $1.74\text{M}$     | $0.36\times$   |
+
+<a id="vector"></a>
+
+### 10.5 HMSPC Vector Field
+
+<figure style="text-align:center; padding-bottom:20px ">
+  <img
+    src="{{ '/assets/vector_field.png' | relative_url }}"
+    width="500"
+    alt="Vector field"
+    style="display: block; margin: 0 auto;"
+  >
+  <figcaption>Figure A1: Vector field of the learned base drift $f_{\theta_1}(z)$ projected onto the first two latent dimensions ($h_1, h_2$), evaluated at $\tilde{u} = 0$ (zero inputs) for seed 42. Color encodes velocity magnitude $\|dh/dt\|_2$. The attractor near $(-1, -1)$ suggests the model has learned a structured resting state in latent space, with faster dynamics in high-magnitude regions.</figcaption>
+</figure>
 
 ## References
 

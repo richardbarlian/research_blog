@@ -47,3 +47,8 @@ permalink: /about/
 
   <img src="{{ '/assets/me2.jpg' | relative_url }}" alt="Richard Barlian">
 </div>
+
+<div style="padding-top: 100px; margin-bottom: -45px; text-align: center;">
+<iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" style="width:100%;max-width:800px;overflow:hidden;border-radius:10px;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/song/music-and-me/1817373541"></iframe>
+<p style="font-size: 0.8em; color: #888; font-style: italic; margin-top: 8px;">🎵 the song that inspired the name of this blog</p>
+</div>

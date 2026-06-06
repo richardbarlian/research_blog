@@ -3,7 +3,7 @@ layout: post
 title: "Beyond Black Boxes: A Framework for Building Rigorous AI for Volatility Forecasting"
 date: 2025-10-26
 author: Richard Barlian
-categories: quant-finance
+categories: supervised-learning time-series quant-finance
 excerpt: "I built a hybrid GARCH-LSTM for volatility forecasting, then tried to prove it wasn't just memorizing noise. Monte Carlo permutation testing across 8 stocks revealed something uncomfortable: not all stocks are actually predictable."
 ---
 

@@ -3,7 +3,7 @@ layout: post
 title: "HMSPC: A Hybrid Mechanistic-Stochastic Physical-Continuous Model for Battery Dynamics"
 date: 2026-3-2
 author: Richard Barlian
-categories: time-series energy-systems
+categories: self-supervised-learning time-series energy-systems
 excerpt: By replacing purely autonomous latent dynamics in Neural ODEs and Latent ODEs with input-conditioned, gated continuous-time evolution, HMSPC better captures regime-dependent structure in battery voltage time series data. This inductive bias, combined with variational inference and uncertainty-aware decoding, leads to consistent gains over Latent ODEs (Rubanova et al., 2019) in both reconstructive accuracy and calibration.
 ---
 

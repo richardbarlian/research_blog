@@ -10,7 +10,7 @@ layout: default
   <div class="tag-filter">
     <div class="tag-scroll">
       <button class="tag-btn active" data-tag="all">All</button>
-      {%- assign all_categories = items | map: "categories" | flatten | uniq -%}
+      {%- assign all_categories = site.posts | map: "categories" | flatten | uniq -%}
       {%- for category in all_categories -%}
       <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
       {%- endfor -%}

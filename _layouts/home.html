@@ -10,8 +10,8 @@ layout: default
   <div class="tag-filter">
     <div class="tag-scroll">
       <button class="tag-btn active" data-tag="all">All</button>
-      {%- assign all_categories = site.posts | map: "categories" | flatten | uniq -%}
-      {%- for category in all_categories -%}
+      {%- assign all_categories = site.posts | map: "categories" | flatten |
+      uniq -%} {%- for category in all_categories -%}
       <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
       {%- endfor -%}
     </div>
@@ -42,6 +42,15 @@ layout: default
 </div>
 
 <script>
+  const scroll = document.querySelector(".tag-scroll");
+  const filter = document.querySelector(".tag-filter");
+
+  function updateFade() {
+    const atEnd =
+      scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 4;
+    filter.classList.toggle("scrolled", atEnd);
+  }
+
   function updateLastVisible() {
     const visible = [...document.querySelectorAll(".post-list li")].filter(
       (li) => li.style.display !== "none",
@@ -51,6 +60,8 @@ layout: default
       .forEach((li) => (li.style.borderBottom = ""));
     if (visible.length) visible[visible.length - 1].style.borderBottom = "none";
   }
+
+  scroll.addEventListener("scroll", updateFade);
 
   document.querySelectorAll(".tag-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -64,9 +75,10 @@ layout: default
         post.style.display =
           tag === "all" || categories.includes(tag) ? "" : "none";
       });
-      updateLastVisible(); // <-- after filtering
+      updateLastVisible();
     });
   });
 
-  updateLastVisible(); // <-- on page load
+  updateFade();
+  updateLastVisible();
 </script>

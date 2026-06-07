@@ -40,6 +40,16 @@ layout: default
 </div>
 
 <script>
+  function updateLastVisible() {
+    const visible = [...document.querySelectorAll(".post-list li")].filter(
+      (li) => li.style.display !== "none",
+    );
+    document
+      .querySelectorAll(".post-list li")
+      .forEach((li) => (li.style.borderBottom = ""));
+    if (visible.length) visible[visible.length - 1].style.borderBottom = "none";
+  }
+
   document.querySelectorAll(".tag-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document
@@ -52,6 +62,9 @@ layout: default
         post.style.display =
           tag === "all" || categories.includes(tag) ? "" : "none";
       });
+      updateLastVisible(); // <-- after filtering
     });
   });
+
+  updateLastVisible(); // <-- on page load
 </script>

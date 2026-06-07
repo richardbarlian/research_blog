@@ -7,12 +7,14 @@ layout: default
   <h1 class="post-title">{{ page.title }}</h1>
   <br />
   {%- endif -%} {{ content }} {%- if site.posts.size > 0 -%}
-  <div class="tag-filter" style="margin-bottom: 1.5rem">
-    <button class="tag-btn active" data-tag="all">All</button>
-    {%- assign all_categories = site.posts | map: "categories" | flatten | uniq
-    -%} {%- for category in all_categories -%}
-    <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
-    {%- endfor -%}
+  <div class="tag-filter">
+    <div class="tag-scroll">
+      <button class="tag-btn active" data-tag="all">All</button>
+      {%- assign all_categories = items | map: "categories" | flatten | uniq -%}
+      {%- for category in all_categories -%}
+      <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
+      {%- endfor -%}
+    </div>
   </div>
 
   <ul class="post-list">

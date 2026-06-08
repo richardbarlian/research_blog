@@ -99,58 +99,177 @@
     width: 100%;
   }
 }
-
 .tag-filter {
   margin-bottom: 2rem;
-  margin-top: -1.5rem;
-  position: relative;
+  margin-top: -1rem;
 }
-
-.tag-filter::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 3rem;
-  background: linear-gradient(to right, transparent, white);
-  pointer-events: none;
+.tag-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: none;
+  font-size: 0.85rem;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 0.6rem;
 }
-
-.tag-scroll {
+.tag-trigger:hover {
+  border-color: #999;
+  color: #111;
+}
+.tag-trigger-count {
+  background: #222;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  padding: 1px 7px;
+  margin-left: 2px;
+}
+.tag-active-pills {
   display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 0.25rem;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-
-.tag-scroll::-webkit-scrollbar {
+.tag-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.2rem 0.6rem;
+  background: #f3f4f6;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: #444;
+}
+.tag-active-pill button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #888;
+  line-height: 1;
+  padding: 0;
+  font-family: inherit;
+}
+.tag-active-pill button:hover {
+  color: #111;
+}
+.tag-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tag-modal-backdrop[hidden] {
   display: none;
 }
-
-.tag-btn {
-  background: none;
+.tag-modal {
+  background: #fff;
+  border-radius: 8px;
   border: 1px solid #e8e8e8;
-  padding: 0.3rem 0.8rem;
-  border-radius: 3px;
+  padding: 1.25rem;
+  width: min(420px, 90vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+.tag-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.tag-modal-close {
+  background: none;
+  border: none;
+  font-size: 18px;
   cursor: pointer;
-  font-size: 0.85rem;
-  color: #828282;
+  color: #888;
+  line-height: 1;
   font-family: inherit;
-  white-space: nowrap;
-  flex-shrink: 0;
-
-  &:hover {
-    border-color: #333;
-    color: #333;
-  }
-
-  &.active {
-    background: #333;
-    color: white;
-    border-color: #333;
-  }
+}
+.tag-modal-close:hover {
+  color: #111;
+}
+.tag-modal-search {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+}
+.tag-modal-search:focus {
+  outline: none;
+  border-color: #999;
+}
+.tag-modal-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 4px;
+}
+.tag-pill {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: #555;
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+}
+.tag-pill:hover {
+  border-color: #555;
+  color: #111;
+}
+.tag-pill.selected {
+  background: #222;
+  color: #fff;
+  border-color: #222;
+}
+.tag-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+.tag-clear {
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  color: #888;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tag-clear:hover {
+  color: #111;
+}
+.tag-apply {
+  padding: 0.35rem 1rem;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tag-apply:hover {
+  background: #444;
 }
 
 .MathJax {

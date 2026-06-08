@@ -8,12 +8,53 @@ layout: default
   <br />
   {%- endif -%} {{ content }} {%- if site.posts.size > 0 -%}
   <div class="tag-filter">
-    <div class="tag-scroll">
-      <button class="tag-btn active" data-tag="all">All</button>
-      {%- assign all_categories = site.posts | map: "categories" | flatten |
-      uniq -%} {%- for category in all_categories -%}
-      <button class="tag-btn" data-tag="{{ category }}">{{ category }}</button>
-      {%- endfor -%}
+    <button class="tag-trigger" id="tagTrigger" aria-haspopup="dialog">
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path d="M3 6h18M7 12h10M11 18h2" />
+      </svg>
+      Filter by category
+      <span
+        class="tag-trigger-count"
+        id="tagCount"
+        style="display: none"
+      ></span>
+    </button>
+    <div class="tag-active-pills" id="tagActivePills"></div>
+
+    <div class="tag-modal-backdrop" id="tagBackdrop" hidden>
+      <div
+        class="tag-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filter by category"
+      >
+        <div class="tag-modal-header">
+          <span>Filter by category</span>
+          <button class="tag-modal-close" id="tagClose" aria-label="Close">
+            &#x2715;
+          </button>
+        </div>
+        <input
+          class="tag-modal-search"
+          id="tagSearch"
+          type="search"
+          placeholder="Search…"
+          autocomplete="off"
+        />
+        <div class="tag-modal-grid" id="tagGrid"></div>
+        <div class="tag-modal-footer">
+          <button class="tag-clear" id="tagClear">Clear all</button>
+          <button class="tag-apply" id="tagApply">Apply</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -42,43 +83,116 @@ layout: default
 </div>
 
 <script>
-  const scroll = document.querySelector(".tag-scroll");
-  const filter = document.querySelector(".tag-filter");
+  (function () {
+    const trigger = document.getElementById("tagTrigger");
+    const backdrop = document.getElementById("tagBackdrop");
+    const closeBtn = document.getElementById("tagClose");
+    const search = document.getElementById("tagSearch");
+    const grid = document.getElementById("tagGrid");
+    const applyBtn = document.getElementById("tagApply");
+    const clearBtn = document.getElementById("tagClear");
+    const pillsContainer = document.getElementById("tagActivePills");
+    const countBadge = document.getElementById("tagCount");
 
-  function updateFade() {
-    const atEnd =
-      scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 4;
-    filter.classList.toggle("scrolled", atEnd);
-  }
+    const allCategories = [
+      ...new Set(
+        [...document.querySelectorAll(".post-list li")].flatMap((li) =>
+          li.dataset.categories.split(" ").filter(Boolean),
+        ),
+      ),
+    ];
 
-  function updateLastVisible() {
-    const visible = [...document.querySelectorAll(".post-list li")].filter(
-      (li) => li.style.display !== "none",
-    );
-    document
-      .querySelectorAll(".post-list li")
-      .forEach((li) => (li.style.borderBottom = ""));
-    if (visible.length) visible[visible.length - 1].style.borderBottom = "none";
-  }
+    let pending = new Set();
+    let active = new Set();
 
-  scroll.addEventListener("scroll", updateFade);
+    function renderGrid(filter = "") {
+      grid.innerHTML = "";
+      allCategories
+        .filter((c) => c.toLowerCase().includes(filter.toLowerCase()))
+        .forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.className = "tag-pill" + (pending.has(cat) ? " selected" : "");
+          btn.textContent = cat;
+          btn.addEventListener("click", () => {
+            pending.has(cat) ? pending.delete(cat) : pending.add(cat);
+            btn.classList.toggle("selected", pending.has(cat));
+          });
+          grid.appendChild(btn);
+        });
+    }
 
-  document.querySelectorAll(".tag-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".tag-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      const tag = btn.dataset.tag;
-      document.querySelectorAll(".post-list li").forEach((post) => {
-        const categories = post.dataset.categories.split(" ");
-        post.style.display =
-          tag === "all" || categories.includes(tag) ? "" : "none";
+    function renderPills() {
+      pillsContainer.innerHTML = "";
+      active.forEach((cat) => {
+        const pill = document.createElement("span");
+        pill.className = "tag-active-pill";
+        pill.innerHTML = `${cat} <button aria-label="Remove ${cat}">&#x2715;</button>`;
+        pill.querySelector("button").addEventListener("click", () => {
+          active.delete(cat);
+          applyFilter();
+        });
+        pillsContainer.appendChild(pill);
+      });
+      const n = active.size;
+      countBadge.textContent = n;
+      countBadge.style.display = n ? "" : "none";
+    }
+
+    function applyFilter() {
+      document.querySelectorAll(".post-list li").forEach((li) => {
+        const cats = li.dataset.categories.split(" ").filter(Boolean);
+        li.style.display =
+          active.size === 0 || cats.some((c) => active.has(c)) ? "" : "none";
       });
       updateLastVisible();
-    });
-  });
+      renderPills();
+    }
 
-  updateFade();
-  updateLastVisible();
+    function updateLastVisible() {
+      const visible = [...document.querySelectorAll(".post-list li")].filter(
+        (li) => li.style.display !== "none",
+      );
+      document
+        .querySelectorAll(".post-list li")
+        .forEach((li) => (li.style.borderBottom = ""));
+      if (visible.length)
+        visible[visible.length - 1].style.borderBottom = "none";
+    }
+
+    function openModal() {
+      pending = new Set(active);
+      search.value = "";
+      renderGrid();
+      backdrop.hidden = false;
+      search.focus();
+    }
+
+    function closeModal() {
+      backdrop.hidden = true;
+    }
+
+    trigger.addEventListener("click", openModal);
+    closeBtn.addEventListener("click", closeModal);
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    search.addEventListener("input", () => renderGrid(search.value));
+
+    applyBtn.addEventListener("click", () => {
+      active = new Set(pending);
+      applyFilter();
+      closeModal();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      pending.clear();
+      renderGrid(search.value);
+    });
+
+    updateLastVisible();
+  })();
 </script>

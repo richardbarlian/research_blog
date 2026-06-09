@@ -255,7 +255,7 @@ $$
 \right)^2
 $$
 
-Gradients are stopped through $\mu_{\text{obs},t_i}$ to prevent the uncertainty loss from distorting the mean prediction _(see [Appendix 10.1](#stopping-gradients))_.
+Gradients are stopped through $\mu_{\text{obs},t_i}$ to prevent the uncertainty loss from distorting the mean prediction _(see [Appendix A.1](#stopping-gradients))_.
 
 ### Training schedule
 
@@ -265,9 +265,9 @@ During the first 15 epochs, gradients through $$ \sigma^2_{\text{obs}} $$ in $\m
 ## 4 Experiments
 
 All models are trained with the same base configuration to ensure fair comparison. Each model is trained for up to 50 epochs with early stopping (patience 10), using the Adam optimizer<sup>[[8]](#ref-8)</sup> (lr $= 10^{-3}$) with a ReduceLROnPlateau scheduler (factor 0.5, patience 3) and gradient clipping (max norm 1.0). Latent dimensions and hidden dimensions are fixed at $d_z = 32$ and $d_H = 64$ respectively. Linear layers are initialized with Xavier uniform initialization<sup>[[5]](#ref-5)</sup>,
-GRU weights with orthogonal initialization<sup>[[6]](#ref-6)</sup>, and biases to zero, consistent across all models. KL annealing is applied to both HMSPC and Latent ODE, warming up linearly from 0 to $\beta_{\text{KL}} = 10^{-3}$ over 15 and 10 epochs respectively. HMSPC additionally warms up $\beta$ from 0 to 0.3 over 15 epochs alongside the uncertainty warmup described in [Section 3.5](#35-training-objective) (for more details on hyperparameters, _see [Appendix 10.2](#hyperparams)_).
+GRU weights with orthogonal initialization<sup>[[6]](#ref-6)</sup>, and biases to zero, consistent across all models. KL annealing is applied to both HMSPC and Latent ODE, warming up linearly from 0 to $\beta_{\text{KL}} = 10^{-3}$ over 15 and 10 epochs respectively. HMSPC additionally warms up $\beta$ from 0 to 0.3 over 15 epochs alongside the uncertainty warmup described in [Section 3.5](#35-training-objective) (for more details on hyperparameters, _see [Appendix A.2](#hyperparams)_).
 
-All models are evaluated on the same train/validation/test split. To ensure each split contains a representative distribution of battery cycle lives, cells are stratified by cycle life using 20 quantile bins, with each bin split 70/15/15 across train, validation, and test _(see [Appendix 10.3](#stratified-split))_. This prevents the common failure mode where short-life and long-life cells cluster in different splits, which would cause evaluation metrics to reflect distributional shift rather than model quality, causing unreasonable decreases in performance during out-of-sample testing. Cells with missing cycle life labels are assigned to the training set. Each model is evaluated over 5 seeds, with mean and standard deviation reported across seeds.
+All models are evaluated on the same train/validation/test split. To ensure each split contains a representative distribution of battery cycle lives, cells are stratified by cycle life using 20 quantile bins, with each bin split 70/15/15 across train, validation, and test _(see [Appendix A.3](#stratified-split))_. This prevents the common failure mode where short-life and long-life cells cluster in different splits, which would cause evaluation metrics to reflect distributional shift rather than model quality, causing unreasonable decreases in performance during out-of-sample testing. Cells with missing cycle life labels are assigned to the training set. Each model is evaluated over 5 seeds, with mean and standard deviation reported across seeds.
 
 ## 5 Results
 
@@ -281,7 +281,7 @@ All models are evaluated on the same train/validation/test split. To ensure each
 | Latent ODE           | $5$ | $58.33 \pm 4.19$                   | $0.9817 \pm 0.0024$                   |
 | Vanilla Neural ODE   | $5$ | $64.85 \pm 3.61$                   | $0.9775 \pm 0.0014$                   |
 
-**Table 2** breaks down the contribution of each architectural component through a systematic ablation study, additionally reporting NLL and Expected Calibration Error (ECE)<sup>[[9]](#ref-9)</sup> to assess uncertainty quality. All ablation variants use the same training setup as the full HMSPC model (_see [Appendix 10.2](#hyperparams)_).
+**Table 2** breaks down the contribution of each architectural component through a systematic ablation study, additionally reporting NLL and Expected Calibration Error (ECE)<sup>[[9]](#ref-9)</sup> to assess uncertainty quality. All ablation variants use the same training setup as the full HMSPC model (_see [Appendix A.2](#hyperparams)_).
 
 **Table 2: Ablation Study**
 
@@ -331,7 +331,7 @@ Removing $\Sigma_\theta$ (w/o $\Sigma_\theta$) yields a slightly lower mean RMSE
 
 ### 6.4 Computational Cost
 
-HMSPC incurs a 1.32$\times$ FLOPs overhead relative to Latent ODE (see [Appendix 10.4](#computational-cost)), driven primarily by the additional gate and delta networks in the drift. Given the 45% reduction in RMSE, this represents a favorable tradeoff, particularly since the additional parameters are small feed-forward networks rather than expensive attention or recurrent layers.
+HMSPC incurs a 1.32$\times$ FLOPs overhead relative to Latent ODE (see [Appendix A.4](#computational-cost)), driven primarily by the additional gate and delta networks in the drift. Given the 45% reduction in RMSE, this represents a favorable tradeoff, particularly since the additional parameters are small feed-forward networks rather than expensive attention or recurrent layers.
 
 ### 6.5 Latent Space Structure
 
@@ -345,38 +345,38 @@ Together these changes address the core mismatch between the Latent ODE's induct
 
 All the code for this project has been open-sourced and can be accessed at [HSMPC Github](https://github.com/richardbarlian/HMSPC). Results are reproducible via fixed seeds, although all experiments were run on CPU (MacBook Pro) and the code has not been tested on GPU or other accelerator hardware. Minor numerical differences may occur across platforms.
 
-## 8 Limitations
+## Limitations
 
-### 8.1 Single dataset
+### Single dataset
 
 All experiments are conducted on the MIT-Stanford battery dataset. While this dataset is widely used and contains a diverse range of cycle lives and charging protocols, generalization to other battery chemistries, form factors, or cycling conditions remains unvalidated.
 
-### 8.2 Forward Euler integration
+### Forward Euler integration
 
 HMSPC uses fixed-step forward Euler to discretize the latent ODE, which is crude relative to adaptive solvers such as dopri5 used in the original Neural ODE framework. All baselines use the same integrator, so comparisons are fair, but absolute performance may improve with higher-order methods.
 
-### 8.3 Window-based evaluation
+### Window-based evaluation
 
 Models are trained and evaluated on fixed-length windows of 120 timesteps rather than full charge/discharge cycles. This simplifies batching but means the model has no explicit notion of cycle number or long-range degradation trends.
 
-### 8.4 Small seed count
+### Small seed count
 
 Results are averaged over 5 seeds. While this is standard for ablation studies, some ablation variants show high variance across seeds (notably w/o drift cond., $\pm 23.84$ mV), suggesting conclusions about those configurations should be interpreted cautiously.
 
-### 8.5 No physics-based baseline
+### No physics-based baseline
 
 HMSPC is compared only against data-driven baselines. Hybrid physics-informed models such as equivalent circuit models augmented with neural corrections represent a natural comparison that is left to future work.
 
-## 9 Ethics / deployment risks
+## Ethics / deployment risks
 
 Battery management systems are safety-critical as miscalibrated voltage predictions can contribute to thermal runaway, cell damage, or unsafe charging decisions. While HMSPC produces calibrated uncertainty estimates that make overconfidence less likely, no model should be deployed in a real BMS without extensive validation on the target hardware, chemistry, and operating conditions. Results here are on a research dataset under controlled conditions and should not be interpreted as production-ready.
 More broadly, improved battery models could accelerate electric vehicle adoption and grid storage deployment, which are net positives for decarbonization. The dataset used (MIT-Stanford) is publicly available and contains no personally identifiable information.
 
-## 10 Appendix
+## Appendix
 
 <a id="stopping-gradients"></a>
 
-### 10.1 Stopping gradients through $$\mu_{\text{obs}}$$
+### A.1 Stopping gradients through $$\mu_{\text{obs}}$$
 
 From the code:
 
@@ -396,7 +396,7 @@ So the responsibilities are cleanly separated:
 
 <a id="hyperparams"></a>
 
-### 10.2 Hyperparameters
+### A.2 Hyperparameters
 
 All hyperparameters shared across every model (NODE, Latent ODE, HMSPC and all ablations):
 
@@ -435,7 +435,7 @@ HMSPC only:
 
 <a id="stratified-split"></a>
 
-### 10.3 Stratified Data Split
+### A.3 Stratified Data Split
 
 Cells are stratified by cycle life to ensure all splits contain a representative range of battery lifetimes. Cells with missing cycle life labels are assigned to training only.
 
@@ -472,7 +472,7 @@ train_cells.extend(nan_cells)
 
 <a id="computational-cost"></a>
 
-### 10.4 Computational Cost
+### A.4 Computational Cost
 
 | Model                | Params $\downarrow$ | FLOPs $\downarrow$ | Relative FLOPs |
 | -------------------- | ------------------- | ------------------ | -------------- |
@@ -485,7 +485,7 @@ train_cells.extend(nan_cells)
 
 <a id="vector"></a>
 
-### 10.5 HMSPC Vector Field
+### A.5 HMSPC Vector Field
 
 <figure style="text-align:center; padding-bottom:20px ">
   <img

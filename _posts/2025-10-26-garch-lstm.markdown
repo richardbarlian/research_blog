@@ -7,6 +7,10 @@ categories: supervised-learning time-series quant-finance
 excerpt: "I built a hybrid GARCH-LSTM for volatility forecasting, then tried to prove it wasn't just memorizing noise. Monte Carlo permutation testing across 8 stocks revealed something uncomfortable: not all stocks are actually predictable."
 ---
 
+<p style="text-align: center; font-size: 0.95em; color: #555;">
+  Code available at <a href="https://github.com/richardbarlian/garch-lstm-volatility" target="_blank" style="font-family: monospace;">Garch-LSTM Volatility Github</a>
+</p>
+
 ## The Problem with Naive Neural Nets for Financial Modelling
 
 In quantitative finance, many hail neural networks as a mystical system that, given enough training, can predict anything.

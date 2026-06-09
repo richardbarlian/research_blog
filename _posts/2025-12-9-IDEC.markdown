@@ -7,6 +7,10 @@ categories: unsupervised-learning time-series quant-finance
 excerpt: Can an autoencoder learn the hidden structure of markets? I trained one on cross-sectional equity returns and found three stable regimes, and a reconstruction error that spiked on Liberation Day before I even knew why.
 ---
 
+<p style="text-align: center; font-size: 0.95em; color: #555;">
+  Code available at <a href="https://github.com/richardbarlian/MarketAutoencoder" target="_blank" style="font-family: monospace;">Market Autoencoder Github</a>
+</p>
+
 <figure style="text-align:center">
   <img src="{{ '/assets/latentspace.webp' | relative_url }}" width="700">
   <figcaption>Autoencoder's 3D Latent Space Over Time</figcaption>

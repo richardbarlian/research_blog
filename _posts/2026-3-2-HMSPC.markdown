@@ -9,6 +9,8 @@ excerpt: By replacing purely autonomous latent dynamics in Neural ODEs and Laten
 
 <p style="text-align: center; font-size: 0.95em; color: #555;">
   Code available at <a href="https://github.com/richardbarlian/HMSPC" target="_blank" style="font-family: monospace;">HMSPC GitHub</a>
+  <br>
+  Preprint version now available at <a href="https://zenodo.org/records/20714492" target="_blank">Zenodo</a>!
 </p>
 
 <h2 style="text-align: center;">Abstract</h2>
